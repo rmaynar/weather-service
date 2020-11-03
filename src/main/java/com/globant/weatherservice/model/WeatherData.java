@@ -21,8 +21,8 @@ public class WeatherData {
     private long id;
 
     @Column(name = "weatherdate")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Madrid")
     private Date date;
 
     @OneToOne(cascade = CascadeType.ALL)

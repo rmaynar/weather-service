@@ -9,6 +9,17 @@ Entrada de datos, consulta y eliminación de todos los datos
 ```bash
 http://localhost:8080/weather
 ```
+
+Filtrado por fecha
+```bash
+http://localhost:8080/weather?date=2015-12-11
+```
+
+Filtrado por fecha mín y máx. (Pendiente de añadir funcionalidad de mostrar temperatura mínima y máxima por localidad)
+```bash
+http://localhost:8080/weather/temp?startDate=2015-12-11&endDate=2016-12-11
+```
+
 Formato del JSON de entrada (ejemplo):
 
 ```bash

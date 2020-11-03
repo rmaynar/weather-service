@@ -2,12 +2,16 @@ package com.globant.weatherservice.controller;
 
 import com.globant.weatherservice.model.WeatherData;
 import com.globant.weatherservice.service.WeatherDataService;
+import com.globant.weatherservice.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,20 +37,38 @@ public class WeatherController {
     }
 
     @GetMapping("/weather")
-    public List<WeatherData> getAllWeatherData(@RequestParam(required = false) String date){
+    public List<WeatherData> getAllWeatherData(@RequestParam(required = false) String date
+            , HttpServletResponse response) throws ParseException {
+        if(date != null){
+            log.info("Returning all weather data filtered by date: " + date);
+            Date inputDate = DateUtils.convertStrToDate(date, DateUtils.DATE_PATTERN_YYYY_MM_DD);
+            log.info("Java formatted date: " + inputDate);
+            List<WeatherData> filteredResult = weatherDataService.findAllByDate(inputDate);
+            if(CollectionUtils.isEmpty(filteredResult)){
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+            }
+            return filteredResult;
+        }
         log.info("Returning all weather data");
         return weatherDataService.findAll();
     }
 
-    /*@GetMapping("/weather")
-    public List<WeatherData> getWeatherDataByDate(@RequestParam String date){
-        log.info("Returning all weather data filtered by date: " + date);
-        return Collections.emptyList();
-    }*/
-
     @GetMapping("/weather/temp")
-    public Object getMaxAndMinTemperaturePerLocation(@RequestParam String startDate, @RequestParam String endDate){
-        return null;
+    public Object getMaxAndMinTemperaturePerLocation(@RequestParam String startDate, @RequestParam String endDate
+            , HttpServletResponse response) throws ParseException {
+        Date start = null;
+        Date end = null;
+        if(startDate == null && endDate == null){
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return null;
+        }
+        if(startDate != null){
+            start = DateUtils.convertStrToDate(startDate, DateUtils.DATE_PATTERN_YYYY_MM_DD);
+        }
+        if(endDate != null){
+            end = DateUtils.convertStrToDate(endDate, DateUtils.DATE_PATTERN_YYYY_MM_DD);
+        }
+        return weatherDataService.findAllByDateBetween(start, end);
     }
 
     @DeleteMapping("/eliminar")

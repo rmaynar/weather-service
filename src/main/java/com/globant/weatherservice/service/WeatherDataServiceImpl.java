@@ -3,7 +3,9 @@ package com.globant.weatherservice.service;
 import com.globant.weatherservice.model.WeatherData;
 import com.globant.weatherservice.repository.WeatherDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +31,13 @@ public class WeatherDataServiceImpl implements WeatherDataService{
     }
 
     @Override
-    public List<WeatherData> findAllByDate() {
-        return null;
+    public List<WeatherData> findAllByDate(Date date) {
+        return weatherDataRepository.findAllByDate(date);
+    }
+
+    @Override
+    public List<WeatherData> findAllByDateBetween(Date dateStart, Date dateEnd) {
+        return weatherDataRepository.findAllByDateBetween(dateStart, dateEnd);
     }
 
     @Override
