@@ -1,22 +1,21 @@
 package com.globant.weatherservice.service;
 
-import com.globant.weatherservice.model.WeatherData;
+import com.globant.weatherservice.dto.WeatherDataDTO;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface WeatherDataService {
 
-    public WeatherData save(WeatherData weatherData);
+  public WeatherDataDTO save(WeatherDataDTO weatherData);
 
-    public Optional<WeatherData> findById(Long id);
+  public WeatherDataDTO saveOrFail(WeatherDataDTO weatherData);
 
-    public List<WeatherData> findAll();
+  public List<WeatherDataDTO> findAll();
 
-    public List<WeatherData>findAllByDate(Date date);
+  public List<WeatherDataDTO> findAllByDate(LocalDate date);
 
-    public List<WeatherData>findAllByDateBetween(Date dateStart, Date dateEnd);
+  public List<WeatherDataDTO> findAllByDateBetween(LocalDate dateStart, LocalDate dateEnd);
 
-    public void deleteAll();
+  public void deleteAll();
 }

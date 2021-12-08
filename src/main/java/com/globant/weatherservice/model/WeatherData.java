@@ -1,35 +1,39 @@
 package com.globant.weatherservice.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Entity
-@Table(name = "weatherdata")
+@Table(name = "weather_data")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class WeatherData {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
-    @Column(name = "weatherdate")
-    @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Europe/Madrid")
-    private Date date;
+  @Column(name = "weather_date")
+  private LocalDate date;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "location_id", referencedColumnName = "id")
-    private Location location;
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "location_id", referencedColumnName = "id")
+  private Location location;
 
-    @ElementCollection
-    private List<Double> temperature;
-
+  @ElementCollection private List<Double> temperature;
 }

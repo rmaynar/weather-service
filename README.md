@@ -7,17 +7,17 @@ API REST para proveer información metereológica haciendo uso de Spring Boot.
 Entrada de datos, consulta y eliminación de todos los datos 
 
 ```bash
-http://localhost:8080/weather
+http://localhost:8080/weather-data
 ```
 
 Filtrado por fecha
 ```bash
-http://localhost:8080/weather?date=2015-12-11
+http://localhost:8080/weather-data?date=2015-12-11
 ```
 
 Filtrado por fecha mín y máx. (Pendiente de añadir funcionalidad de mostrar temperatura mínima y máxima por localidad)
 ```bash
-http://localhost:8080/weather/temp?startDate=2015-12-11&endDate=2016-12-11
+http://localhost:8080/weather-data/temp?startDate=2015-12-11&endDate=2016-12-11
 ```
 
 Formato del JSON de entrada (ejemplo):
@@ -69,6 +69,7 @@ En la carpeta resources está disponible el fichero data.sql con datos para la p
 
 http://localhost:8080/h2-console
 ```bash
+connection url: jdbc:h2:mem:testdb
 user: sa
 password: password
 ```
