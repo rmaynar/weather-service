@@ -1,79 +1,67 @@
 package com.globant.weatherservice.controller;
 
-import com.globant.weatherservice.model.WeatherData;
+import com.globant.weatherservice.dto.WeatherDataDTO;
 import com.globant.weatherservice.service.WeatherDataService;
-import com.globant.weatherservice.utils.DateUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class WeatherController {
 
-    @Autowired
-    private WeatherDataService weatherDataService;
+  private final WeatherDataService weatherDataService;
 
-    @PostMapping("/weather")
-    public WeatherData saveWeatherData(@RequestBody WeatherData weatherData, HttpServletResponse response){
+  @PostMapping("/weather-data")
+  public ResponseEntity<WeatherDataDTO> saveWeatherData(
+      @RequestBody WeatherDataDTO weatherDataDTO) {
 
-        //Check if previously exists
-        log.info("Checking for previous data");
-        if(weatherData.getId() != 0 && weatherDataService.findById(weatherData.getId()).isPresent()){
-            log.error("Weather data already exists!");
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-            return null;
-        }
+    log.info("Saving weather data for " + weatherDataDTO.toString());
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(weatherDataService.saveOrFail(weatherDataDTO));
+  }
 
-        response.setStatus(HttpStatus.CREATED.value());
-        return weatherDataService.save(weatherData);
+  @GetMapping("/weather-data")
+  public ResponseEntity<List<WeatherDataDTO>> getAllWeatherData(
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Optional<LocalDate> date) {
+
+    if (date.isEmpty()) {
+      log.info("Returning all weather data");
+      return ResponseEntity.ok(weatherDataService.findAll());
     }
 
-    @GetMapping("/weather")
-    public List<WeatherData> getAllWeatherData(@RequestParam(required = false) String date
-            , HttpServletResponse response) throws ParseException {
-        if(date != null){
-            log.info("Returning all weather data filtered by date: " + date);
-            Date inputDate = DateUtils.convertStrToDate(date, DateUtils.DATE_PATTERN_YYYY_MM_DD);
-            log.info("Java formatted date: " + inputDate);
-            List<WeatherData> filteredResult = weatherDataService.findAllByDate(inputDate);
-            if(CollectionUtils.isEmpty(filteredResult)){
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-            }
-            return filteredResult;
-        }
-        log.info("Returning all weather data");
-        return weatherDataService.findAll();
-    }
+    log.info("Returning all weather data filtered by date: " + date.get().toString());
+    return ResponseEntity.ok(weatherDataService.findAllByDate(date.get()));
+  }
 
-    @GetMapping("/weather/temp")
-    public Object getMaxAndMinTemperaturePerLocation(@RequestParam String startDate, @RequestParam String endDate
-            , HttpServletResponse response) throws ParseException {
-        Date start = null;
-        Date end = null;
-        if(startDate == null && endDate == null){
-            response.setStatus(HttpStatus.BAD_REQUEST.value());
-            return null;
-        }
-        if(startDate != null){
-            start = DateUtils.convertStrToDate(startDate, DateUtils.DATE_PATTERN_YYYY_MM_DD);
-        }
-        if(endDate != null){
-            end = DateUtils.convertStrToDate(endDate, DateUtils.DATE_PATTERN_YYYY_MM_DD);
-        }
-        return weatherDataService.findAllByDateBetween(start, end);
-    }
+  @GetMapping("/weather-data/temp")
+  public ResponseEntity<List<WeatherDataDTO>> getMaxAndMinTemperaturePerLocation(
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
-    @DeleteMapping("/eliminar")
-    public void deleteAllRecords(){
-        log.info("Deleting all the records");
-        weatherDataService.deleteAll();
-    }
+    return ResponseEntity.ok(weatherDataService.findAllByDateBetween(startDate, endDate));
+  }
+
+  @DeleteMapping("/delete")
+  public ResponseEntity<?> deleteAllRecords() {
+
+    log.info("Deleting all the records");
+    weatherDataService.deleteAll();
+
+    return ResponseEntity.ok().build();
+  }
 }
